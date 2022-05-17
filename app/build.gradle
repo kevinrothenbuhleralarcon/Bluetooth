@@ -1,6 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'dagger.hilt.android.plugin'
+    id 'kotlin-kapt'
 }
 
 android {
@@ -54,7 +56,15 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
 
+    // For permission handling
     implementation "com.google.accompanist:accompanist-permissions:0.24.8-beta"
+    // Compose navigation
+    implementation "androidx.navigation:navigation-compose:$nav_version"
+
+    // Dagger-Hilt
+    implementation "com.google.dagger:hilt-android:$dagger_version"
+    kapt "com.google.dagger:hilt-android-compiler:$dagger_version"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0'
 
     testImplementation 'junit:junit:4.13.2'
 

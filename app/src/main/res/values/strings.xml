@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Bluetooth</string>
+    <string name="device_selection">Device selection</string>
+    <string name="refresh">Refresh</string>
+    <string name="permanently_denied">The Bluetooth permission was permanently denied, please activate it in the app settings</string>
+    <string name="rational">This part of the app needs access to the bluetooth</string>
+    <string name="permission_title">Permission</string>
+    <string name="ok">OK</string>
 </resources>
