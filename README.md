@@ -1,1 +1,2 @@
 # Bluetooth
+Training of bluetooth
