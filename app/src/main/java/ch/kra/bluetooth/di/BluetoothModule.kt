@@ -4,8 +4,10 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.location.LocationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.content.getSystemService
 import ch.kra.bluetooth.data.BluetoothRepositoryImpl
 import ch.kra.bluetooth.data.remote.BluetoothScanReceiver
 import ch.kra.bluetooth.domain.repository.BluetoothRepository
@@ -37,13 +39,21 @@ object BluetoothModule {
 
     @Provides
     @Singleton
+    fun provideLocationManager(@ApplicationContext context: Context): LocationManager {
+        return context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    }
+
+    @Provides
+    @Singleton
     fun provideBluetoothRepository(
         bluetoothAdapter: BluetoothAdapter,
-        bluetoothScanReceiver: BluetoothScanReceiver
+        bluetoothScanReceiver: BluetoothScanReceiver,
+        locationManager: LocationManager
     ): BluetoothRepository {
         return BluetoothRepositoryImpl(
             bluetoothAdapter,
-            bluetoothScanReceiver
+            bluetoothScanReceiver,
+            locationManager
         )
     }
 }

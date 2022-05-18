@@ -10,12 +10,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ch.kra.bluetooth.core.Constant.GPS_REQUIRED
 import ch.kra.bluetooth.core.Resource
 import ch.kra.bluetooth.core.Tag.BLUETOOTH
 import ch.kra.bluetooth.core.UIEvent
 import ch.kra.bluetooth.domain.repository.BluetoothRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
@@ -27,8 +29,8 @@ class DeviceSelectionViewModel @Inject constructor(
     private val bluetoothRepository: BluetoothRepository
 ) : ViewModel() {
 
-    private val _devices: MutableState<Set<BluetoothDevice>> = mutableStateOf(emptySet())
-    val devices: State<Set<BluetoothDevice>> = _devices
+    private val _devices: MutableState<DeviceState> = mutableStateOf(DeviceState())
+    val devices: State<DeviceState> = _devices
 
     private val _pairedDevices: MutableState<Set<BluetoothDevice>> = mutableStateOf(emptySet())
     val pairedDevices: State<Set<BluetoothDevice>> = _pairedDevices
@@ -47,8 +49,6 @@ class DeviceSelectionViewModel @Inject constructor(
     fun onEvent(event: DeviceSelectionListEvent) {
         when (event) {
             is DeviceSelectionListEvent.ScanForDevices -> {
-                val devices = bluetoothRepository.scanDevices()
-                Log.i(BLUETOOTH, "devices retrieved: $devices")
                 startDeviceScan()
             }
 
@@ -68,17 +68,25 @@ class DeviceSelectionViewModel @Inject constructor(
                 when(result) {
                     is Resource.Success -> {
                         Log.i(BLUETOOTH, "Devices ${result.data}")
+                        _devices.value = devices.value.copy(
+                            devices = result.data,
+                            isLoading = false
+                        )
                     }
 
                     is Resource.Error -> {
-
+                        if (result.message == GPS_REQUIRED) {
+                            sendEvent(UIEvent.RequestGPSActivation)
+                        }
                     }
 
                     is Resource.Loading -> {
-
+                        _devices.value = devices.value.copy(
+                            isLoading = true
+                        )
                     }
                 }
-            }
+            }.launchIn(this)
         }
     }
 

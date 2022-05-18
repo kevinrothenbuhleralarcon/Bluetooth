@@ -6,8 +6,11 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.content.IntentFilter
+import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +31,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import ch.kra.bluetooth.core.Routes
+import ch.kra.bluetooth.core.Tag.BLUETOOTH
 import ch.kra.bluetooth.core.isPermanentlyDenied
 import ch.kra.bluetooth.data.remote.BluetoothScanReceiver
 import ch.kra.bluetooth.presentation.device_selection.screen.DeviceSelectionScreen
@@ -45,26 +49,6 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
     @Inject
     lateinit var bReceiver: BluetoothScanReceiver
-
-    private val _bluetoothActivationResult = Channel<Boolean>()
-    private val bluetoothActivationResult = _bluetoothActivationResult.receiveAsFlow()
-
-    private val activityResultLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        sendBluetoothActivationResult(result.resultCode == RESULT_OK)
-    }
-
-    private fun sendBluetoothActivationResult(boolean: Boolean) {
-        lifecycleScope.launch {
-            _bluetoothActivationResult.send(boolean)
-        }
-    }
-
-    private fun requestBluetoothPermission() {
-        val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-        activityResultLauncher.launch(enableBluetoothIntent)
-    }
 
     @SuppressLint("MissingPermission")
     @RequiresApi(Build.VERSION_CODES.S)
@@ -115,10 +99,7 @@ class MainActivity : ComponentActivity() {
                                 startDestination = Routes.DeviceSelection.route
                             ) {
                                 composable(Routes.DeviceSelection.route) {
-                                    DeviceSelectionScreen(
-                                        requestBluetoothActivation = { requestBluetoothPermission() },
-                                        bluetoothResultFlow = bluetoothActivationResult
-                                    )
+                                    DeviceSelectionScreen()
                                 }
                             }
                         }

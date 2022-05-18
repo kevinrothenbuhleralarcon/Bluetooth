@@ -6,4 +6,9 @@
     <string name="rational">This part of the app needs access to the bluetooth</string>
     <string name="permission_title">Permission</string>
     <string name="ok">OK</string>
+    <string name="header">Bluetooth Connected List</string>
+    <string name="paired_devices">Paired Devices</string>
+    <string name="available_devices">Available Devices</string>
+    <string name="undefined">Undefined</string>
+    <string name="scan">Scan</string>
 </resources>

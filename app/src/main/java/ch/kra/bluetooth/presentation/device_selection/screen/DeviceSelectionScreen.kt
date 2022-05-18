@@ -1,14 +1,12 @@
 package ch.kra.bluetooth.presentation.device_selection.screen
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
 import android.content.Intent
 import android.os.Build
-import android.util.Log
+import android.provider.Settings
 import androidx.activity.ComponentActivity
-import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
@@ -20,16 +18,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
-import ch.kra.bluetooth.core.Tag
-import ch.kra.bluetooth.core.Tag.BLUETOOTH
+import ch.kra.bluetooth.R
 import ch.kra.bluetooth.core.UIEvent
 import ch.kra.bluetooth.presentation.device_selection.DeviceSelectionListEvent
 import ch.kra.bluetooth.presentation.device_selection.DeviceSelectionViewModel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 
 
 @SuppressLint("MissingPermission")
@@ -37,25 +35,30 @@ import kotlinx.coroutines.flow.collect
 @Composable
 fun DeviceSelectionScreen(
     viewModel: DeviceSelectionViewModel = hiltViewModel(),
-    requestBluetoothActivation: () -> Unit,
-    bluetoothResultFlow: Flow<Boolean>
 ) {
     val pairedDevices = viewModel.pairedDevices.value
-    val devices = viewModel.devices.value
+    val devicesState = viewModel.devices.value
+
+    val context = LocalContext.current
+
+    val activityResultLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.onEvent(DeviceSelectionListEvent.BluetoothActivationResult(result.resultCode == ComponentActivity.RESULT_OK))
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect{ event ->
             when (event) {
                 is UIEvent.RequestBluetoothActivation -> {
-                    requestBluetoothActivation()
+                    val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+                    activityResultLauncher.launch(enableBluetoothIntent)
+                }
+                is UIEvent.RequestGPSActivation -> {
+                    val enableGPSIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    context.startActivity(enableGPSIntent)
                 }
             }
-        }
-    }
-
-    LaunchedEffect(key1 = true) {
-        bluetoothResultFlow.collect{
-            viewModel.onEvent(DeviceSelectionListEvent.BluetoothActivationResult(it))
         }
     }
 
@@ -65,7 +68,7 @@ fun DeviceSelectionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Bluetooth Connected List",
+                        text = stringResource(R.string.header),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -85,37 +88,44 @@ fun DeviceSelectionScreen(
                 onClick = { viewModel.onEvent(DeviceSelectionListEvent.ScanForDevices) }
             ) {
                 Text(
-                    text = "Scan",
+                    text = stringResource(R.string.scan),
                     style = MaterialTheme.typography.subtitle1
                 )
             }
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Available Devices",
+                text = stringResource(R.string.available_devices),
                 style = MaterialTheme.typography.h6
             )
             Spacer(modifier = Modifier.height(10.dp))
-            devices.forEach { device ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
-                    elevation = 10.dp
-                ) {
-                    Column(
+            if (devicesState.isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
+            } else {
+                devicesState.devices.forEach { device ->
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(10.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                        elevation = 10.dp
                     ) {
-                        Text(text = device.name)
-                        Text(text = device.address)
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Text(text = device.name ?: stringResource(R.string.undefined))
+                            Text(text = device.address)
+                        }
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(10.dp))
             Text(
-                text = "Paired Devices",
+                text = stringResource(R.string.paired_devices),
                 style = MaterialTheme.typography.h6
             )
             Spacer(modifier = Modifier.height(10.dp))
@@ -132,7 +142,7 @@ fun DeviceSelectionScreen(
                             .padding(10.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Text(text = device.name)
+                        Text(text = device.name ?: stringResource(R.string.undefined))
                         Text(text = device.address)
                     }
                 }
