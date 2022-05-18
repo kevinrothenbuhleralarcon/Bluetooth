@@ -1,14 +1,18 @@
 <resources>
     <string name="app_name">Bluetooth</string>
+    <string name="device_selection_header">Bluetooth Connected List</string>
+    <string name="device_control_header">Device Control</string>
     <string name="device_selection">Device selection</string>
     <string name="refresh">Refresh</string>
     <string name="permanently_denied">The Bluetooth permission was permanently denied, please activate it in the app settings</string>
     <string name="rational">This part of the app needs access to the bluetooth</string>
     <string name="permission_title">Permission</string>
     <string name="ok">OK</string>
-    <string name="header">Bluetooth Connected List</string>
     <string name="paired_devices">Paired Devices</string>
     <string name="available_devices">Available Devices</string>
     <string name="undefined">Undefined</string>
     <string name="scan">Scan</string>
+    <string name="on">On</string>
+    <string name="off">Off</string>
+    <string name="disconnect">Disconnect</string>
 </resources>

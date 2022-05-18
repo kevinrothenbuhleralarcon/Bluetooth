@@ -1,14 +1,13 @@
-package ch.kra.bluetooth.presentation.device_selection.screen
+package ch.kra.bluetooth.bluetooth.presentation.device_selection.screen
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -21,20 +20,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import ch.kra.bluetooth.R
 import ch.kra.bluetooth.core.UIEvent
-import ch.kra.bluetooth.presentation.device_selection.DeviceSelectionListEvent
-import ch.kra.bluetooth.presentation.device_selection.DeviceSelectionViewModel
-import kotlinx.coroutines.flow.Flow
+import ch.kra.bluetooth.bluetooth.presentation.device_selection.DeviceSelectionListEvent
+import ch.kra.bluetooth.bluetooth.presentation.device_selection.DeviceSelectionViewModel
 
 
 @SuppressLint("MissingPermission")
-@RequiresApi(Build.VERSION_CODES.M)
 @Composable
 fun DeviceSelectionScreen(
     viewModel: DeviceSelectionViewModel = hiltViewModel(),
+    navigate: (UIEvent.Navigate) -> Unit
 ) {
     val pairedDevices = viewModel.pairedDevices.value
     val devicesState = viewModel.devices.value
@@ -48,16 +45,22 @@ fun DeviceSelectionScreen(
     }
 
     LaunchedEffect(key1 = true) {
-        viewModel.uiEvent.collect{ event ->
+        viewModel.uiEvent.collect { event ->
             when (event) {
                 is UIEvent.RequestBluetoothActivation -> {
                     val enableBluetoothIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
                     activityResultLauncher.launch(enableBluetoothIntent)
                 }
+
                 is UIEvent.RequestGPSActivation -> {
                     val enableGPSIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
                     context.startActivity(enableGPSIntent)
                 }
+
+                is UIEvent.Navigate -> {
+                    navigate(event)
+                }
+                else -> {}
             }
         }
     }
@@ -68,7 +71,7 @@ fun DeviceSelectionScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.header),
+                        text = stringResource(R.string.device_selection_header),
                         modifier = Modifier.fillMaxWidth(),
                         textAlign = TextAlign.Center
                     )
@@ -107,7 +110,10 @@ fun DeviceSelectionScreen(
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                            .padding(horizontal = 10.dp, vertical = 5.dp)
+                            .clickable {
+                                viewModel.onEvent(DeviceSelectionListEvent.PairedDeviceClicked(device.address))
+                            },
                         elevation = 10.dp
                     ) {
                         Column(
@@ -133,7 +139,10 @@ fun DeviceSelectionScreen(
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                        .padding(horizontal = 10.dp, vertical = 5.dp)
+                        .clickable {
+                            viewModel.onEvent(DeviceSelectionListEvent.PairedDeviceClicked(device.address))
+                        },
                     elevation = 10.dp
                 ) {
                     Column(

@@ -1,19 +1,16 @@
-package ch.kra.bluetooth.data
+package ch.kra.bluetooth.bluetooth.data
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.location.LocationManager
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import ch.kra.bluetooth.core.Constant.GPS_REQUIRED
 import ch.kra.bluetooth.core.Constant.SCAN_TIME
 import ch.kra.bluetooth.core.Resource
-import ch.kra.bluetooth.core.Tag
 import ch.kra.bluetooth.core.Tag.BLUETOOTH
-import ch.kra.bluetooth.data.remote.BluetoothScanReceiver
-import ch.kra.bluetooth.domain.repository.BluetoothRepository
+import ch.kra.bluetooth.bluetooth.data.remote.BluetoothScanReceiver
+import ch.kra.bluetooth.bluetooth.domain.repository.BluetoothRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow

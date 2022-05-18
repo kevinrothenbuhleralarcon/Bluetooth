@@ -1,19 +1,14 @@
-package ch.kra.bluetooth
+package ch.kra.bluetooth.bluetooth.presentation
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.content.IntentFilter
-import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -26,22 +21,14 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.lifecycleScope
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import ch.kra.bluetooth.core.Routes
-import ch.kra.bluetooth.core.Tag.BLUETOOTH
+import ch.kra.bluetooth.R
 import ch.kra.bluetooth.core.isPermanentlyDenied
-import ch.kra.bluetooth.data.remote.BluetoothScanReceiver
-import ch.kra.bluetooth.presentation.device_selection.screen.DeviceSelectionScreen
+import ch.kra.bluetooth.bluetooth.data.remote.BluetoothScanReceiver
 import ch.kra.bluetooth.ui.theme.BluetoothTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -67,7 +54,8 @@ class MainActivity : ComponentActivity() {
                     permissions = listOf(
                         Manifest.permission.BLUETOOTH_CONNECT,
                         Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                     )
                 )
 
@@ -94,14 +82,7 @@ class MainActivity : ComponentActivity() {
                     when {
                         permissionState.allPermissionsGranted -> {
                             val navController = rememberNavController()
-                            NavHost(
-                                navController = navController,
-                                startDestination = Routes.DeviceSelection.route
-                            ) {
-                                composable(Routes.DeviceSelection.route) {
-                                    DeviceSelectionScreen()
-                                }
-                            }
+                            Navigation(navController = navController)
                         }
                         permissionState.shouldShowRationale -> {
                             showDialog = true

@@ -1,4 +1,4 @@
-package ch.kra.bluetooth.data.remote
+package ch.kra.bluetooth.bluetooth.data.remote
 
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice

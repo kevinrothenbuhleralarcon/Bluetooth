@@ -1,4 +1,4 @@
-package ch.kra.bluetooth.presentation.device_selection
+package ch.kra.bluetooth.bluetooth.presentation.device_selection
 
 import android.bluetooth.BluetoothDevice
 

@@ -1,9 +1,7 @@
-package ch.kra.bluetooth.presentation.device_selection
+package ch.kra.bluetooth.bluetooth.presentation.device_selection
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
-import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -12,9 +10,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ch.kra.bluetooth.core.Constant.GPS_REQUIRED
 import ch.kra.bluetooth.core.Resource
+import ch.kra.bluetooth.core.Routes
 import ch.kra.bluetooth.core.Tag.BLUETOOTH
 import ch.kra.bluetooth.core.UIEvent
-import ch.kra.bluetooth.domain.repository.BluetoothRepository
+import ch.kra.bluetooth.bluetooth.domain.repository.BluetoothRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
@@ -58,6 +57,10 @@ class DeviceSelectionViewModel @Inject constructor(
                 } else {
                     sendEvent(UIEvent.RequestBluetoothActivation)
                 }
+            }
+
+            is DeviceSelectionListEvent.PairedDeviceClicked -> {
+                sendEvent(UIEvent.Navigate(Routes.DeviceControl.route + "?deviceAddress=${event.address}"))
             }
         }
     }

@@ -1,4 +1,4 @@
-package ch.kra.bluetooth.domain.repository
+package ch.kra.bluetooth.bluetooth.domain.repository
 
 import android.bluetooth.BluetoothDevice
 import ch.kra.bluetooth.core.Resource
